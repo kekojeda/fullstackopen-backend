@@ -11,6 +11,8 @@ app.use(cors())
 app.use(express.json());
 app.use(morgan('tiny'))
 
+app.use(express.static('dist'))
+
 app.use((req, res, next) => {
     if (req.method === "POST") {
       console.log("Data sent in POST request:", req.body);
