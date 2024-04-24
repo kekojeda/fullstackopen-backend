@@ -1,3 +1,8 @@
+require('dotenv').config()
+
+const Person = require('./models/person')
+
+
 const express = require("express");
 const morgan = require("morgan")
 const cors = require('cors')
@@ -10,40 +15,15 @@ app.use(morgan('tiny'))
 
 app.use(express.static('dist'))
 
-app.use((req, res, next) => {
-    if (req.method === "POST") {
-      console.log("Data sent in POST request:", req.body);
-    }
-    next();
-  });
+// app.use((req, res, next) => {
+//     if (req.method === "POST") {
+//       console.log("Data sent in POST request:", req.body);
+//     }
+//     next();
+//   });
 
-
-const generateId = () => {
-  let numero = Math.floor(Math.random() * 100000);
-  return numero;
-};
 
 let persons = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
 ];
 
 app.get("/", (request, response) => {
@@ -58,8 +38,13 @@ app.get("/info", (request, response) => {
 });
 
 app.get("/api/persons", (request, response) => {
-  response.json(persons);
+  Person.find({}).then((person) => {
+    response.json(person);
+  });
 });
+
+
+
 
 app.get("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
@@ -79,8 +64,11 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
-app.post("/api/persons", (request, response) => {
-  const body = request.body;
+/*
+POST to DB Mongo Atlas
+*/
+app.post('/api/persons', (request, response) => {
+  const body = request.body
 
   if (!body.name) {
     return response.status(400).json({
@@ -92,22 +80,26 @@ app.post("/api/persons", (request, response) => {
       error: "number missing",
     });
   }
-  if (persons.some((person) => person.name === body.name)) {
-    return response.status(400).json({
-      error: "name must be unique",
-    });
-  }
+  // if (persons.some((person) => person.name === body.name)) {
+  //   return response.status(400).json({
+  //     error: "name must be unique",
+  //   });
+  // }
 
-  const person = {
-    id: generateId(),
+
+  const person = new Person({
     name: body.name,
     number: body.number,
-  };
+  })
 
-  persons = persons.concat(person);
+  person.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
+})
+/*
+END POST to DB Mongo Atlas
+*/
 
-  response.json(person);
-});
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
