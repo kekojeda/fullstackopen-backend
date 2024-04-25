@@ -39,21 +39,7 @@ if (process.argv.length < 4) {
   person.save().then((result) => {
     console.log(`added ${result.name} number ${result.number} to phonebook!`);
     mongoose.connection.close();
-  });
+  }
+)
 }
 
-// note.save().then(result => {
-//   console.log('note saved!')
-//   mongoose.connection.close()
-// })
-
-// Note.find({ important: true }).then(result => {
-//     // ...
-//   })
-
-// Note.find({}).then(result => {
-//     result.forEach(note => {
-//       console.log(note)
-//     })
-//     mongoose.connection.close()
-//   })
